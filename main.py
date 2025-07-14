@@ -60,16 +60,22 @@ def visualize_stat(player1: str, player2: str, stat: str):
     return {"image": f"data:image/png;base64,{image_base64}"}
 @app.get("/compare")
 def compare_players(player1: str, player2: str):
-    df1 = all_data[all_data['player'] == player1]
-    df2 = all_data[all_data['player'] == player2]
+    df1 = all_data[all_data['player'].str.lower() == player1.lower()]
+    df2 = all_data[all_data['player'].str.lower() == player2.lower()]
 
     if df1.empty or df2.empty:
-        return JSONResponse(status_code=404, content={"error": "Player not found."})
+        return JSONResponse(status_code=404, content={
+            "error": "One or both players not found.",
+            "player1_found": not df1.empty,
+            "player2_found": not df2.empty
+        })
 
     stats = ['goals', 'assists', 'shots_per_game', 'passes_per_game']
+    valid_stats = [s for s in stats if s in df1.columns and s in df2.columns]
+
     summary = {
-        player1: df1[stats].mean().round(2).to_dict(),
-        player2: df2[stats].mean().round(2).to_dict()
+        player1: df1[valid_stats].mean(numeric_only=True).round(2).to_dict(),
+        player2: df2[valid_stats].mean(numeric_only=True).round(2).to_dict()
     }
     return summary
 
