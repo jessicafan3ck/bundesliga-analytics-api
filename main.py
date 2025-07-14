@@ -24,7 +24,40 @@ def root():
     return {
         "message": "Bundesliga Analytics Assistant ready. Use /compare, /top, /filter, /plot, /play."
     }
+@app.get("/players")
+def list_players():
+    players = sorted(all_data['player'].dropna().unique().tolist())
+    return {"players": players}
+@app.get("/stats")
+def list_stats():
+    numeric_cols = all_data.select_dtypes(include='number').columns.tolist()
+    return {"available_stats": numeric_cols}
+@app.get("/visualize")
+def visualize_stat(player1: str, player2: str, stat: str):
+    df1 = all_data[all_data['player'].str.lower() == player1.lower()]
+    df2 = all_data[all_data['player'].str.lower() == player2.lower()]
 
+    if df1.empty or df2.empty:
+        return JSONResponse(status_code=404, content={"error": "Player(s) not found"})
+
+    plot_df1 = df1.groupby('season')[stat].mean().reset_index()
+    plot_df2 = df2.groupby('season')[stat].mean().reset_index()
+
+    plt.figure()
+    plt.plot(plot_df1['season'], plot_df1[stat], marker='o', label=player1)
+    plt.plot(plot_df2['season'], plot_df2[stat], marker='x', label=player2)
+    plt.title(f"{stat.title()} Comparison: {player1} vs {player2}")
+    plt.xlabel("Season")
+    plt.ylabel(stat.title())
+    plt.legend()
+    plt.grid(True)
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close()
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    return {"image": f"data:image/png;base64,{image_base64}"}
 @app.get("/compare")
 def compare_players(player1: str, player2: str):
     df1 = all_data[all_data['player'] == player1]
