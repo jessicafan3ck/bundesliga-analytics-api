@@ -9,7 +9,7 @@ import uvicorn
 # -------------------------
 # Load merged Bundesliga data
 # -------------------------
-all_data = pd.read_csv("./bundesliga_data/merged_bundesliga_stats.csv")
+all_data = pd.read_csv("./merged_bundesliga_stats.csv")
 
 # Normalize column names
 all_data.columns = [c.strip().lower().replace(" ", "_") for c in all_data.columns]
