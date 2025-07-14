@@ -5,21 +5,11 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 import uvicorn
-import os
 
 # -------------------------
-# Load and preprocess data
+# Load merged Bundesliga data
 # -------------------------
-dataframes = []
-data_folder = "./bundesliga_data"
-
-for filename in os.listdir(data_folder):
-    if filename.endswith(".csv"):
-        df = pd.read_csv(os.path.join(data_folder, filename))
-        df['season'] = filename.split("-")[2][:4]  # crude season tag
-        dataframes.append(df)
-
-all_data = pd.concat(dataframes, ignore_index=True)
+all_data = pd.read_csv("./bundesliga_data/merged_bundesliga_stats.csv")
 
 # Normalize column names
 all_data.columns = [c.strip().lower().replace(" ", "_") for c in all_data.columns]
@@ -31,7 +21,9 @@ app = FastAPI(title="Bundesliga Analytics Assistant")
 
 @app.get("/")
 def root():
-    return {"message": "Bundesliga Analytics Assistant ready. Use /compare, /top, /filter, /plot, /play."}
+    return {
+        "message": "Bundesliga Analytics Assistant ready. Use /compare, /top, /filter, /plot, /play."
+    }
 
 @app.get("/compare")
 def compare_players(player1: str, player2: str):
@@ -90,7 +82,7 @@ def plot_stat(player: str, stat: str):
 
 @app.get("/play")
 def play_summary(player: str, season: str):
-    # mock plays
+    # Mock highlights
     samples = {
         "thomas muller": ["Low cross from the right, first-time flick into the net.", "Backheel assist under pressure."],
         "erling haaland": ["Bulldozes through defense, powers it home.", "Counterattack finish from 30 yards."]
@@ -100,7 +92,7 @@ def play_summary(player: str, season: str):
     return {"player": player, "season": season, "highlight_reel": plays}
 
 # -------------------------
-# Main (optional)
+# Local dev entrypoint
 # -------------------------
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
