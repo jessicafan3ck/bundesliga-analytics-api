@@ -3,3 +3,4 @@ uvicorn
 pandas
 matplotlib
 python-multipart
+scikit-learn
