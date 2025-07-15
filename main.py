@@ -83,7 +83,6 @@ def list_stats():
 
 @app.get("/visualize")
 def visualize_stat(player1: str, player2: str, stat: str):
-    # unchanged
     df1 = all_data[all_data['player'].str.lower() == player1.lower()]
     df2 = all_data[all_data['player'].str.lower() == player2.lower()]
     if df1.empty or df2.empty:
@@ -107,7 +106,6 @@ def visualize_stat(player1: str, player2: str, stat: str):
 
 @app.get("/compare")
 def compare_players(player1: str, player2: str):
-    # unchanged
     df1 = all_data[all_data['player'].str.lower() == player1.lower()]
     df2 = all_data[all_data['player'].str.lower() == player2.lower()]
     if df1.empty or df2.empty:
@@ -149,7 +147,6 @@ def filter_stats(team: str = None, season: str = None, min_goals: int = 0):
 
 @app.get("/plot")
 def plot_stat(player: str, stat: str):
-    # unchanged
     df = all_data[all_data['player'].str.lower() == player.lower()]
     if df.empty:
         return JSONResponse(status_code=404, content={"error": "Player not found."})
@@ -169,10 +166,9 @@ def plot_stat(player: str, stat: str):
 
 @app.get("/play")
 def play_summary(player: str, season: str):
-    # unchanged
     samples = {
         "thomas muller": ["Low cross from the right, first-time flick into the net.", "Backheel assist under pressure."],
-        "jamal musiala": ["Solo run into the box, tight dribble and goal.", "Nutmeg assist through a crowd."]
+        "jamal musiala": ["Solo run into the box, tight dribble and goal.", "Nutmeg assistant through a crowd."]
     }
     key = player.lower()
     plays = samples.get(key, ["No highlight data available for this player."])
@@ -183,7 +179,6 @@ def play_summary(player: str, season: str):
 # -------------------------
 @app.get("/player_profile")
 def player_profile(player: str, season: str):
-    # Z-score radar data for key stats
     df_season = all_data[all_data['season'] == season]
     if df_season.empty:
         return JSONResponse(status_code=404, content={"error": "Season not found."})
@@ -224,7 +219,6 @@ def trajectory_predict(player: str, stat: str):
     dfp = all_data[all_data['player'].str.lower() == player.lower()].dropna(subset=[stat]).copy()
     if len(dfp) < 3:
         return JSONResponse(status_code=400, content={"error": "Need at least 3 seasons of data to predict."})
-    # Convert season to numeric
     def season_to_year(s):
         try:
             return int(s.split('-')[0])
