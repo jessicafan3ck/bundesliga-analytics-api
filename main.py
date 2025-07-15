@@ -135,16 +135,17 @@ def top_players(stat: str = Query(...), season: str = Query(None), top_n: int = 
 
 @app.get("/filter")
 def filter_stats(team: str = None, season: str = None, min_goals: int = 0):
-    # unchanged
     df = all_data
     if team:
         df = df[df['current_club'].str.lower() == team.lower()]
     if season:
         df = df[df['season'] == season]
     df = df[df['goals_overall'] >= min_goals]
-    return df[['player', 'current_club', 'season', 'goals_overall', 'assists_overall']]
-               .sort_values(by="goals_overall", ascending=False)
-               .to_dict(orient="records")
+    return (
+        df[['player', 'current_club', 'season', 'goals_overall', 'assists_overall']]
+        .sort_values(by="goals_overall", ascending=False)
+        .to_dict(orient="records")
+    )
 
 @app.get("/plot")
 def plot_stat(player: str, stat: str):
